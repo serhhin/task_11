@@ -28,25 +28,17 @@ class Name(Field):
 
 
 class Phone(Field):
-    def __init__(self, value):
-        self.set_phone(value)
-
-    def set_phone(self, value):
-        if not value.isdigit() or len(value) != 10:
-            raise ValueError("Invalid phone number")
-        self.value = value
+    def is_valid(self, value):
+        return value.isdigit() and len(value) == 10
 
 
 class Birthday(Field):
-    def __init__(self, value):
-        self.set_birthday(value)
-
-    def set_birthday(self, value):
+    def is_valid(self, value):
         try:
             datetime.strptime(value, '%Y-%m-%d')
+            return True
         except ValueError:
-            raise ValueError("Invalid birthday format, please use YYYY-MM-DD")
-        self.value = value
+            return False
 
 
 class Record:
