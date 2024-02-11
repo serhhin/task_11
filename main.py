@@ -3,19 +3,25 @@ from datetime import datetime, timedelta
 
 class Field:
     def __init__(self, value):
-        self._value = value
+        if not self.is_valid(value):
+            raise ValueError("Invalid value")
+        self.__value = value
 
     def __str__(self):
-        return str(self._value)
+        return str(self.__value)
+
+    def is_valid(self, value):
+        return True
 
     @property
     def value(self):
-        return self._value
+        return self.__value
 
     @value.setter
-    def value(self, new_value):
-        self._value = new_value
-
+    def value(self, value):
+        if not self.is_valid(value):
+            raise ValueError("Invalid value")
+        self.__value = value
 
 class Name(Field):
     pass
@@ -84,7 +90,20 @@ class Record:
     def __str__(self):
         phones_str = '; '.join(str(phone) for phone in self.phones)
         return f"Contact name: {self.name.value}, phones: {phones_str}, birthday: {self.birthday.value if self.birthday else 'Not specified'}"
-
+    
+    def edit_phone(self, old_phone, new_phone):
+        old_phone_obj = Phone(old_phone)
+        new_phone_obj = Phone(new_phone)
+        
+        found = False
+        for phone_obj in self.phones:
+            if phone_obj.value == old_phone_obj.value:
+                phone_obj.value = new_phone_obj.value
+                found = True
+                break
+        
+        if not found:
+            raise ValueError("Phone number not found")
 
 class AddressBook(UserDict):
     def __init__(self):
@@ -128,7 +147,7 @@ if __name__ == "__main__":
             print(record)
 
     john = book.find("John")
-    print(john.days_to_birthday())  # Output: Number of days to John's next birthday
+    print(john.days_to_birthday())  # Вивід: Кількість днів до наступного дня народження у Яна
 
     found_phone = john.find_phone("5555555555")
     print(f"{found_phone}")
